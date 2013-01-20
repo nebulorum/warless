@@ -23,8 +23,28 @@ import java.security.NoSuchAlgorithmException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+@SuppressWarnings("ResultOfMethodCallIgnored")
 public class ZipUtility {
   static private final String ZERO_FILLER = "00000000000000000000000000000000";
+
+  static private class FilterAll implements UnzipFilter {
+    public boolean filter(String name) {
+      return true;
+    }
+  }
+
+  static public class PrefixUnzipFilter implements UnzipFilter {
+
+    private final String prefix;
+
+    public PrefixUnzipFilter(String prefix) {
+      this.prefix = prefix;
+    }
+
+    public boolean filter(String name) {
+      return name.startsWith(prefix);
+    }
+  }
 
   public String streamMD5(InputStream is) {
     MessageDigest digest = getMD5MessageDigest();
@@ -60,36 +80,38 @@ public class ZipUtility {
     }
   }
 
-  public void unzipAll(InputStream is, File targetDirectory) throws RuntimeException {
-    if (!targetDirectory.exists() && !targetDirectory.isDirectory()) {
-      throw new RuntimeException("Bad directory " + targetDirectory);
-    }
-    try {
+
+  public void unzipAll(InputStream is, File targetDirectory) throws IOException {
+    unzipFiltered(is, targetDirectory, new FilterAll());
+  }
+
+  public void unzipFiltered(InputStream is, File targetDirectory, UnzipFilter filter) throws IOException {
       ZipInputStream zipInputStream = new ZipInputStream(is);
 
       ZipEntry zipentry = zipInputStream.getNextEntry();
       while (zipentry != null) {
-        File dest = new File(targetDirectory, zipentry.getName());
-        if (zipentry.isDirectory()) {
-          makeParentDirectory(dest);
-        } else {
-          makeParentDirectory(dest.getParentFile());
-          extractFile(zipInputStream, dest);
-        }
-        zipInputStream.closeEntry();
+        handleEntry(targetDirectory, filter, zipInputStream, zipentry);
         zipentry = zipInputStream.getNextEntry();
-      } //while
+      }
       zipInputStream.close();
-    } catch (Exception e) {
-      e.printStackTrace();
+  }
+
+  private void handleEntry(File targetDirectory, UnzipFilter filter, ZipInputStream zipInputStream, ZipEntry zipentry) throws IOException {
+    String name = zipentry.getName();
+    if (filter.filter(name)) {
+      File dest = new File(targetDirectory, name);
+      if (zipentry.isDirectory()) {
+        makeParentDirectory(dest);
+      } else {
+        makeParentDirectory(dest.getParentFile());
+        extractFile(zipInputStream, dest);
+      }
     }
+    zipInputStream.closeEntry();
   }
 
   private void makeParentDirectory(File parentFile) {
-    if (!parentFile.exists()) {
-      System.out.println("Creating directory: " + parentFile);
-      parentFile.mkdirs();
-    }
+    if (!parentFile.exists()) parentFile.mkdirs();
   }
 
   private void extractFile(ZipInputStream zipinputstream, File dest) throws IOException {

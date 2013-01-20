@@ -16,10 +16,12 @@
  */
 package org.exnebula.warless;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 
@@ -27,6 +29,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ZipUtilityTest {
+
+  private File target;
+  private InputStream archiveZip;
+
+  @Before
+  public void setUp() throws Exception {
+    target = new File("target");
+    archiveZip = this.getClass().getClassLoader().getResourceAsStream("archive.zip");
+  }
 
   @Test
   public void computeMD5String() throws NoSuchAlgorithmException {
@@ -41,11 +52,20 @@ public class ZipUtilityTest {
   }
 
   @Test
-  public void unzipAll() {
+  public void unzipAll() throws IOException {
     InputStream is = this.getClass().getClassLoader().getResourceAsStream("archive.zip");
     File target = new File("target");
     new ZipUtility().unzipAll(is, target);
     validateDirectory(target);
+    cleanupDirectory(target);
+  }
+
+  @Test
+  public void unzipAllWithFilter() throws IOException {
+    new ZipUtility().unzipFiltered(archiveZip, target, new ZipUtility.PrefixUnzipFilter("folder_two"));
+    assertFileExists(target, "folder_two/file_two.txt");
+    assertFileNotExists(target, "file_base.txt");
+    assertFileNotExists(target, "folder_one/file_one.txt");
     cleanupDirectory(target);
   }
 
@@ -73,11 +93,16 @@ public class ZipUtilityTest {
 
   private void assertFileExists(File baseDirectory, String relativePath) {
     File file = new File(baseDirectory, relativePath);
-    assertTrue(file.getAbsolutePath() + " exists", file.exists() && file.isFile());
+    assertTrue(file.getAbsolutePath() + " should exist", file.exists() && file.isFile());
+  }
+
+  private void assertFileNotExists(File baseDirectory, String relativePath) {
+    File file = new File(baseDirectory, relativePath);
+    assertTrue(file.getAbsolutePath() + " exists", !file.exists());
   }
 
   private void assertFolderPresent(File baseDirectory, String relativePath) {
     File file = new File(baseDirectory, relativePath);
-    assertTrue(file.getAbsolutePath() + " exists and is directory", file.exists() && file.isDirectory());
+    assertTrue(file.getAbsolutePath() + " should exist and be directory", file.exists() && file.isDirectory());
   }
 }
