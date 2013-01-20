@@ -16,61 +16,52 @@
  */
 package org.exnebula.warless;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.NoSuchAlgorithmException;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class ZipUtilityTest {
+public class UnzipperTest {
 
   private File target;
-  private InputStream archiveZip;
+  private Unzipper unzipper;
 
   @Before
   public void setUp() throws Exception {
     target = new File("target");
-    archiveZip = this.getClass().getClassLoader().getResourceAsStream("archive.zip");
+    InputStream archiveZip = this.getClass().getClassLoader().getResourceAsStream("archive.zip");
+    unzipper = new Unzipper(archiveZip);
   }
 
-  @Test
-  public void computeMD5String() throws NoSuchAlgorithmException {
-    assertEquals(stringMD5("some string"), "5ac749fbeec93607fc28d666be85e73a");
-  }
-
-  @Test
-  public void makeSureWePadMD5() throws NoSuchAlgorithmException {
-    assertEquals("0cc175b9c0f1b6a831c399e269772661", stringMD5("a"));
-    assertEquals("00411460f7c92d2124a67ea0f4cb5f85", stringMD5("363"));
-    assertEquals("0000000018e6137ac2caab16074784a6", stringMD5("jk8ssl"));
+  @After
+  public void tearDown() throws Exception {
+    cleanupDirectory(target);
   }
 
   @Test
   public void unzipAll() throws IOException {
-    InputStream is = this.getClass().getClassLoader().getResourceAsStream("archive.zip");
-    File target = new File("target");
-    new ZipUtility().unzipAll(is, target);
+    unzipper.unzip(target);
     validateDirectory(target);
-    cleanupDirectory(target);
+  }
+
+  @Test(expected = IOException.class)
+  public void unzipCantRunTwice() throws IOException {
+    unzipper.unzip(target);
+    unzipper.unzip(target);
   }
 
   @Test
   public void unzipAllWithFilter() throws IOException {
-    new ZipUtility().unzipFiltered(archiveZip, target, new ZipUtility.PrefixUnzipFilter("folder_two"));
+    unzipper.setFilter(new Unzipper.PrefixUnzipFilter("folder_two"));
+    unzipper.unzip(target);
     assertFileExists(target, "folder_two/file_two.txt");
     assertFileNotExists(target, "file_base.txt");
     assertFileNotExists(target, "folder_one/file_one.txt");
-    cleanupDirectory(target);
-  }
-
-  private String stringMD5(String s) throws NoSuchAlgorithmException {
-    return new ZipUtility().streamMD5(new ByteArrayInputStream(s.getBytes()));
   }
 
   private void validateDirectory(File dir) {
