@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 - Thomas Santana <tms@exnebula.org>
+ * Copyright (C) 2013-2013 - Thomas Santana <tms@exnebula.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 package org.exnebula.warless;
 
 import java.io.File;
+import java.io.IOException;
 
 public class WarLess {
   private final WarTarget target;
@@ -32,7 +33,7 @@ public class WarLess {
     return targetDirectory;
   }
 
-  public void resolve() {
+  public void resolve() throws IOException {
     String subPath = archive.getWebAppDirectory();
     if (archive.isArchive()) {
       handleArchive(subPath);
@@ -45,7 +46,7 @@ public class WarLess {
     targetDirectory = new File(archive.getArchivePath(), subPath);
   }
 
-  private void handleArchive(String subPath) {
+  private void handleArchive(String subPath) throws IOException {
     if (!localCopyUpToDate()) {
       extractArchive();
       target.updateMD5Digest(archive.getMD5Digest());
@@ -57,7 +58,7 @@ public class WarLess {
     archive.extractWebApp(target.getTargetDirectory(), archive.getWebAppDirectory());
   }
 
-  private boolean localCopyUpToDate() {
+  private boolean localCopyUpToDate() throws IOException {
     return archive.getMD5Digest().equals(target.currentMD5Digest());
   }
 }

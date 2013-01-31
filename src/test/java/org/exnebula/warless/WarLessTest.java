@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 - Thomas Santana <tms@exnebula.org>
+ * Copyright (C) 2013-2013 - Thomas Santana <tms@exnebula.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -111,7 +111,7 @@ public class WarLessTest {
     verifyTargetDirectoryIsExpandedDirectory();
   }
 
-  private void mockTargetWithSignature(String signature) {
+  private void mockTargetWithSignature(String signature) throws IOException {
     when(target.currentMD5Digest()).thenReturn(signature);
   }
 
@@ -139,12 +139,12 @@ public class WarLessTest {
     verify(archive, atLeastOnce()).isArchive();
   }
 
-  private void verifyCheckedTargetDirectory() {
+  private void verifyCheckedTargetDirectory() throws IOException {
     verify(target, atLeastOnce()).getTargetDirectory();
     verify(target, atLeastOnce()).currentMD5Digest();
   }
 
-  private void verifyNotCheckedTargetDirectory() {
+  private void verifyNotCheckedTargetDirectory() throws IOException {
     verify(target, never()).getTargetDirectory();
     verify(target, never()).currentMD5Digest();
   }
@@ -154,7 +154,7 @@ public class WarLessTest {
     when(archive.getMD5Digest()).thenReturn(newSignature);
   }
 
-  private void mockArchiveIsDirectory(File archivePath) {
+  private void mockArchiveIsDirectory(File archivePath) throws IOException {
     when(archive.isArchive()).thenReturn(false);
     when(archive.getArchivePath()).thenReturn(archivePath);
     when(target.currentMD5Digest()).thenReturn(null);
@@ -168,7 +168,7 @@ public class WarLessTest {
     return MD5Digest.digestFromStream(new ByteArrayInputStream(digestText.getBytes()));
   }
 
-  private void verifyExpandedArchive() {
+  private void verifyExpandedArchive() throws IOException {
     verify(archive, times(1)).extractWebApp(targetDirectory, appSubDirectory);
     verify(target, times(1)).updateMD5Digest(newSignature);
   }

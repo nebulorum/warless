@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 - Thomas Santana <tms@exnebula.org>
+ * Copyright (C) 2013-2013 - Thomas Santana <tms@exnebula.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,12 +16,46 @@
  */
 package org.exnebula.warless;
 
-import java.io.File;
+import java.io.*;
 
-public interface WarTarget {
-  File getTargetDirectory();
+public class WarTarget {
+  private final static String SIGNATURE_FILE_NAME = "archive.md5";
+  private File targetDirectory;
 
-  String currentMD5Digest();
+  public WarTarget(File targetDirectory) {
+    this.targetDirectory = targetDirectory;
+  }
 
-  void updateMD5Digest(String newSignature);
+  public File getTargetDirectory() {
+    return targetDirectory;
+  }
+
+  public File getSignatureFile() {
+    return new File(targetDirectory, SIGNATURE_FILE_NAME);
+  }
+
+  public String currentMD5Digest() throws IOException {
+    try {
+      BufferedReader reader = new BufferedReader(new FileReader(getSignatureFile()));
+      return reader.readLine();
+    } catch (FileNotFoundException e) {
+      return null;
+    }
+  }
+
+  public void updateMD5Digest(String signature) throws IOException {
+    createDirectoryIfNotPresent();
+    saveSignatureToFile(signature);
+  }
+
+  private void saveSignatureToFile(String signature) throws FileNotFoundException {
+    PrintWriter out = new PrintWriter(new FileOutputStream(getSignatureFile()));
+    out.println(signature);
+    out.close();
+  }
+
+  private void createDirectoryIfNotPresent() throws IOException {
+    if (!targetDirectory.exists() && !targetDirectory.mkdirs())
+      throw new IOException("Failed to create directories: " + targetDirectory.getAbsolutePath());
+  }
 }
