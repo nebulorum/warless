@@ -20,7 +20,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 
@@ -60,7 +59,7 @@ public class WarTargetTest {
 
   @Test
   public void afterUpdateOfSignature_shouldReadNewSignature() throws IOException {
-    String signature = MD5Digest.digestFromStream(new ByteArrayInputStream(("some md5" + Long.toHexString(System.currentTimeMillis())).getBytes()));
+    String signature = MD5Digest.digestFromString("some md5" + Long.toHexString(System.currentTimeMillis()));
     WarTarget warTarget = new WarTarget(targetDirectory);
     warTarget.updateMD5Digest(signature);
     assertTrue("directory does not exists", targetDirectory.exists());

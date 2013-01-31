@@ -27,7 +27,7 @@ public class MD5DigestTest {
 
   @Test
   public void computeMD5String() throws NoSuchAlgorithmException {
-    assertEquals(stringMD5("some string"), "5ac749fbeec93607fc28d666be85e73a");
+    assertEquals("5ac749fbeec93607fc28d666be85e73a", stringMD5("some string"));
   }
 
   @Test
@@ -35,6 +35,11 @@ public class MD5DigestTest {
     assertEquals("0cc175b9c0f1b6a831c399e269772661", stringMD5("a"));
     assertEquals("00411460f7c92d2124a67ea0f4cb5f85", stringMD5("363"));
     assertEquals("0000000018e6137ac2caab16074784a6", stringMD5("jk8ssl"));
+  }
+
+  @Test
+  public void digestFromString() throws NoSuchAlgorithmException {
+    assertEquals("5ac749fbeec93607fc28d666be85e73a", MD5Digest.digestFromString("some string"));
   }
 
   private String stringMD5(String s) throws NoSuchAlgorithmException {

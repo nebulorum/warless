@@ -16,6 +16,7 @@
  */
 package org.exnebula.warless;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -57,5 +58,9 @@ public class MD5Digest {
     } catch (IOException e) {
       throw new RuntimeException("Unable to process file for MD5", e);
     }
+  }
+
+  public static String digestFromString(String message) {
+    return digestFromStream(new ByteArrayInputStream(message.getBytes()));
   }
 }

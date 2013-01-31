@@ -19,14 +19,11 @@ package org.exnebula.warless;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 
 import static junit.framework.Assert.assertEquals;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verify;
 
 public class WarLessTest {
 
@@ -165,12 +162,11 @@ public class WarLessTest {
   }
 
   private String buildMD5Digest(String digestText) {
-    return MD5Digest.digestFromStream(new ByteArrayInputStream(digestText.getBytes()));
+    return MD5Digest.digestFromString(digestText);
   }
 
   private void verifyExpandedArchive() throws IOException {
     verify(archive, times(1)).extractWebApp(targetDirectory, appSubDirectory);
     verify(target, times(1)).updateMD5Digest(newSignature);
   }
-
 }
