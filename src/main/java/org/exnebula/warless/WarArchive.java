@@ -17,15 +17,45 @@
 package org.exnebula.warless;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 
-public interface WarArchive {
-  String getWebAppDirectory();
+public class WarArchive {
+  private final File archiveFile;
+  private final String appDirectory;
 
-  boolean isArchive();
+  public WarArchive(File archiveFile, String appDirectory) {
+    this.archiveFile = archiveFile;
+    this.appDirectory = appDirectory;
+  }
 
-  void extractWebApp(File targetDirectory, String appSubDirectory);
+  File getArchivePath() {
+    return archiveFile;
+  }
 
-  File getArchivePath();
+  String getWebAppDirectory() {
+    return appDirectory;
+  }
 
-  String getMD5Digest();
+  boolean isArchive() {
+    return (archiveFile != null) && archiveFile.exists() && archiveFile.isFile();
+  }
+
+  void extractWebApp(File targetDirectory, String appSubDirectory) throws IOException {
+    Unzipper unzipper = new Unzipper(new FileInputStream(archiveFile));
+    unzipper.setFilter(new Unzipper.PrefixUnzipFilter(appDirectory));
+    unzipper.unzip(targetDirectory);
+  }
+
+  String getMD5Digest() throws IOException {
+    if (isArchive())
+      return MD5Digest.digestFromStream(new FileInputStream(archiveFile));
+    else
+      return null;
+  }
+
+  public static WarArchive create(Class<?> aClass, String appDirectory) {
+    String container = aClass.getProtectionDomain().getCodeSource().getLocation().getFile();
+    return new WarArchive(new File(container), appDirectory);
+  }
 }

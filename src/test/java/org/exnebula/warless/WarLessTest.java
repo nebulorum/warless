@@ -120,11 +120,11 @@ public class WarLessTest {
     verify(archive, atLeastOnce()).getArchivePath();
   }
 
-  private void verifyDidNotExpandArchive() {
+  private void verifyDidNotExpandArchive() throws IOException {
     verify(archive, never()).extractWebApp(targetDirectory, appSubDirectory);
   }
 
-  private void verifyCheckArchiveSignatureAndPath() {
+  private void verifyCheckArchiveSignatureAndPath() throws IOException {
     verify(archive, atLeastOnce()).isArchive();
     verify(archive, atLeastOnce()).getMD5Digest();
     verify(archive, atLeastOnce()).getWebAppDirectory();
@@ -146,7 +146,7 @@ public class WarLessTest {
     verify(target, never()).currentMD5Digest();
   }
 
-  private void mockArchiveIsFile(String newSignature, boolean isArchive) {
+  private void mockArchiveIsFile(String newSignature, boolean isArchive) throws IOException {
     when(archive.isArchive()).thenReturn(isArchive);
     when(archive.getMD5Digest()).thenReturn(newSignature);
   }

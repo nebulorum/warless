@@ -54,7 +54,7 @@ public class WarLess {
     targetDirectory = new File(target.getTargetDirectory(), subPath);
   }
 
-  private void extractArchive() {
+  private void extractArchive() throws IOException {
     archive.extractWebApp(target.getTargetDirectory(), archive.getWebAppDirectory());
   }
 
