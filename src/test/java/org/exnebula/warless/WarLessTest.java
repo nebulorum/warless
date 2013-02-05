@@ -121,7 +121,7 @@ public class WarLessTest {
   }
 
   private void verifyDidNotExpandArchive() throws IOException {
-    verify(archive, never()).extractWebApp(targetDirectory, appSubDirectory);
+    verify(archive, never()).extractWebApp(targetDirectory);
   }
 
   private void verifyCheckArchiveSignatureAndPath() throws IOException {
@@ -166,7 +166,7 @@ public class WarLessTest {
   }
 
   private void verifyExpandedArchive() throws IOException {
-    verify(archive, times(1)).extractWebApp(targetDirectory, appSubDirectory);
+    verify(archive, times(1)).extractWebApp(targetDirectory);
     verify(target, times(1)).updateMD5Digest(newSignature);
   }
 }

@@ -75,7 +75,7 @@ public class WarArchiveTest {
     WarArchive warArchive = new WarArchive(archiveFile, "folder_two");
     targetDirectory = new File("target");
 
-    warArchive.extractWebApp(targetDirectory, null);
+    warArchive.extractWebApp(targetDirectory);
 
     assertTrue("folder_two does not exists", isDirectory(new File(targetDirectory, "folder_two")));
     assertFalse("folder_one exists", isDirectory(new File(targetDirectory, "folder_one")));

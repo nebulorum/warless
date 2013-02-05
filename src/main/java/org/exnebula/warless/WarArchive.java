@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 - Thomas Santana <tms@exnebula.org>
+ * Copyright (C) 2013-2013 - Thomas Santana <tms@exnebula.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ public class WarArchive {
     return (archiveFile != null) && archiveFile.exists() && archiveFile.isFile();
   }
 
-  void extractWebApp(File targetDirectory, String appSubDirectory) throws IOException {
+  void extractWebApp(File targetDirectory) throws IOException {
     Unzipper unzipper = new Unzipper(new FileInputStream(archiveFile));
     unzipper.setFilter(new Unzipper.PrefixUnzipFilter(appDirectory));
     unzipper.unzip(targetDirectory);

@@ -55,7 +55,7 @@ public class WarLess {
   }
 
   private void extractArchive() throws IOException {
-    archive.extractWebApp(target.getTargetDirectory(), archive.getWebAppDirectory());
+    archive.extractWebApp(target.getTargetDirectory());
   }
 
   private boolean localCopyUpToDate() throws IOException {
