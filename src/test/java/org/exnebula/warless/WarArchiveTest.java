@@ -88,7 +88,7 @@ public class WarArchiveTest {
 
     assertTrue(warArchive.isArchive());
     assertEquals(appDir, warArchive.getWebAppDirectory());
-    assertEquals("junit-4.8.1.jar", warArchive.getArchivePath().getName());
+    assertEquals("junit-4.11.jar", warArchive.getArchivePath().getName());
   }
 
   @Test
