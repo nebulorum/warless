@@ -18,8 +18,9 @@ application embedded in my larger Swing application.
 
 In order to use this module in a project:
 
-1. Package your would be War as a Jar and include in the dependencies
-
+1. Package your application as you would War, however generate a Jar and include in the file all the static
+files as resources.
+<pre>
     myArchive.jar
     |---org
     |   `-- exnebula
@@ -33,14 +34,23 @@ In order to use this module in a project:
         |   `-- coollib.js
         `-- images
             `-- logo.png
+</pre> 
 
-1. Create a Warless object passing it the archive handle (from a class in the archive) and the target directory
-    WarLess warLess = new WarLess(
+1. Create a Warless object passing it the archive handle (from a class in the archive) and the target directory.
+```java
+  WarLess warLess = new WarLess(
       WarArchive.create(SomeClassInJar.class, "webapp"),
       new WarTarget(new File("my/target/directory")));
-
+```
+   The `"webapp"` paramater refers to the subdirectory in the jar that houses all the static field. You can have any
+   directory but remember that
 1. Ask warless to resolve the target (this will expand if needed)
+```java    
     warLess.resolve();
-1. Get the final target war directory from `warless.getAppDirectory`
+```
+  Resolving will unzip the Jar or point to the directory in the build target. To know the final directory use: `warless.getAppDirectory()`
+
 1. Setup you jetty as if it where a dev environment, in this case we assume we have a wrapper class called `server`.
+```java 
     server.configureWar(warLess.getTargetDirectory().getAbsoluteFile());
+```
