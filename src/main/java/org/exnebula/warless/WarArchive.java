@@ -19,6 +19,8 @@ package org.exnebula.warless;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 public class WarArchive {
   private final File archiveFile;
@@ -56,6 +58,10 @@ public class WarArchive {
 
   public static WarArchive create(Class<?> aClass, String appDirectory) {
     String container = aClass.getProtectionDomain().getCodeSource().getLocation().getFile();
-    return new WarArchive(new File(container), appDirectory);
+    try {
+      return new WarArchive(new File(URLDecoder.decode(container, "UTF-8")), appDirectory);
+    } catch (UnsupportedEncodingException e) {
+      return null;
+    }
   }
 }

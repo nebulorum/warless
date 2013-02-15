@@ -16,13 +16,20 @@
  */
 package org.exnebula.warless;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.net.URLDecoder;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class WarLessTest {
@@ -106,6 +113,33 @@ public class WarLessTest {
     verifyDidNotGetArchivePath();
     verifyDidNotExpandArchive();
     verifyTargetDirectoryIsExpandedDirectory();
+  }
+
+  @Test
+  public void whenBuildingFromProtectionDomain_mustHandleSpacesInName() throws IOException, ClassNotFoundException {
+    File destFile = copyClassJarFileToDestination(Test.class, "target/with space/");
+    Class<?> aClass = createClassLoaderAndLoadClass(destFile, "org.junit.rules.RuleChain");
+
+    WarArchive warArchive = WarArchive.create(aClass, "some");
+    assertEquals(getJarFileFromClass(aClass), warArchive.getArchivePath());
+  }
+
+  private File copyClassJarFileToDestination(Class<Test> aClass, String target) throws IOException {
+    File srcFile = getJarFileFromClass(aClass);
+    File destFile = new File(target, srcFile.getName());
+    FileUtils.copyFile(srcFile, destFile);
+    assertTrue(destFile + " was note copied", destFile.exists());
+    return destFile;
+  }
+
+  private Class<?> createClassLoaderAndLoadClass(File jarFile, String classToLoad) throws MalformedURLException, ClassNotFoundException {
+    URL[] urls = {jarFile.toURI().toURL()};
+    URLClassLoader classLoader = new URLClassLoader(urls, null);
+    return classLoader.loadClass(classToLoad);
+  }
+
+  private File getJarFileFromClass(Class<?> aClass) throws UnsupportedEncodingException {
+    return new File(URLDecoder.decode(aClass.getProtectionDomain().getCodeSource().getLocation().getFile(), "UTF-8"));
   }
 
   private void mockTargetWithSignature(String signature) throws IOException {
